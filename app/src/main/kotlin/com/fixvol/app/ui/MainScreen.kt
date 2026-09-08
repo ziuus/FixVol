@@ -29,6 +29,10 @@ import com.fixvol.app.data.AppMetadata
 import com.fixvol.app.rules.RuleMode
 import com.fixvol.app.ui.theme.*
 import coil.compose.AsyncImage
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +72,9 @@ fun MainScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LightBgBase)
             )
+        },
+        bottomBar = {
+            AdBanner()
         },
         containerColor = LightBgBase
     ) { paddingValues ->
@@ -370,5 +377,28 @@ fun AppRowItem(
                 Icon(Icons.Default.ChevronRight, contentDescription = null, tint = TextSecondary)
             }
         }
+    }
+}
+
+@Composable
+fun AdBanner() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(LightSurfaceElevated)
+            .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AndroidView(
+            modifier = Modifier.fillMaxWidth(),
+            factory = { context ->
+                AdView(context).apply {
+                    setAdSize(AdSize.BANNER)
+                    // Google official test Ad Unit ID for Banners
+                    adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                    loadAd(AdRequest.Builder().build())
+                }
+            }
+        )
     }
 }

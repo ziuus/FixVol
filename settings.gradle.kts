@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "FixVol"
 include(":app")
+include(":shared")
