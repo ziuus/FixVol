@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-09-08
+
+### Added
+- **Premium app icon**: New waveform icon with indigo-violet gradient.
+
+---
+
+## [1.1.0] - 2026-09-07
+
+### Added
+- **AdMob integration**: Non-intrusive banner ads via Google Play Services.
+- **First Play Only session tracking**: Volume fix fires only on the first audio playback per session.
+- **KMP Shared Module**: Extracted core business logic into a Kotlin Multiplatform shared module for future iOS support.
+
+---
+
 ## [1.0.0] - 2026-09-07
 
 ### Added
