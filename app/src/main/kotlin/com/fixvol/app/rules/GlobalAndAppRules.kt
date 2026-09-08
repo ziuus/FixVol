@@ -16,7 +16,7 @@ data class GlobalRules(
                 AudioCategory.VOICE_CALL to true,
                 AudioCategory.SYSTEM to false,
                 AudioCategory.ACCESSIBILITY to false,
-                AudioCategory.UNKNOWN to false
+                AudioCategory.UNKNOWN to true
             )
         }
     }

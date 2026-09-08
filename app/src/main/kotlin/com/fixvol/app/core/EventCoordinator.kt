@@ -10,11 +10,13 @@ import android.util.Log
 
 class EventCoordinator(
     private val nativeVolumeController: NativeVolumeController,
-    var cooldownMs: Long = DEFAULT_COOLDOWN_MS
+    var cooldownMs: Long = DEFAULT_COOLDOWN_MS,
+    var triggerOnlyOnFirstPlay: Boolean = true
 ) {
 
     private var lastTriggeredTimestamp: Long = 0L
     private var lastTriggeredKey: String? = null
+    private val activeSessions = mutableMapOf<String, Long>()
 
     // Debug statistics tracking
     var totalEventsCount: Long = 0
@@ -47,6 +49,18 @@ class EventCoordinator(
 
         val eventKey = "${event.packageName ?: event.uid ?: "unknown"}:${event.category}"
         val now = System.currentTimeMillis()
+
+        // Active Session Check ("First Play Only" feature)
+        val lastSessionTime = activeSessions[eventKey]
+        val isOngoingSession = lastSessionTime != null && (now - lastSessionTime < SESSION_TIMEOUT_MS)
+        activeSessions[eventKey] = now
+
+        if (triggerOnlyOnFirstPlay && isOngoingSession) {
+            ignoredCount++
+            lastActionDescription = "Suppressed continuous playback ($eventKey)"
+            Log.d(TAG, "Suppressed continuous playback event for key: $eventKey")
+            return RuleDecision.IGNORE
+        }
 
         // Debouncing / Cooldown check
         if (now - lastTriggeredTimestamp < cooldownMs && eventKey == lastTriggeredKey) {
@@ -91,6 +105,7 @@ class EventCoordinator(
     companion object {
         const val DEFAULT_COOLDOWN_MS = 2500L
         private const val MIN_GLOBAL_COOLDOWN_MS = 1000L
+        private const val SESSION_TIMEOUT_MS = 4000L
         private const val TAG = "EventCoordinator"
 
         fun getPriority(category: AudioCategory): Int {

@@ -28,6 +28,7 @@ import com.fixvol.app.audio.AudioCategory
 import com.fixvol.app.data.AppMetadata
 import com.fixvol.app.rules.RuleMode
 import com.fixvol.app.ui.theme.*
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -227,13 +228,17 @@ fun TestVolumeCard(
                 }
             }
 
-            if (testResult != null) {
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    text = testResult,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                    color = if (testResult.startsWith("✓")) StatusActiveGreen else Color.Red
-                )
+            androidx.compose.animation.AnimatedVisibility(visible = testResult != null) {
+                if (testResult != null) {
+                    Column {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            text = testResult,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            color = if (testResult.startsWith("✓")) StatusActiveGreen else Color.Red
+                        )
+                    }
+                }
             }
         }
     }
@@ -309,17 +314,47 @@ fun AppRowItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
-                Text(
-                    text = app.appName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
-                )
-                Text(
-                    text = app.packageName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                if (app.icon != null) {
+                    AsyncImage(
+                        model = app.icon,
+                        contentDescription = "${app.appName} icon",
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                    Spacer(Modifier.width(16.dp))
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(BorderSubtle),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = app.appName.firstOrNull()?.uppercase() ?: "?",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TextSecondary
+                        )
+                    }
+                    Spacer(Modifier.width(16.dp))
+                }
+                Column {
+                    Text(
+                        text = app.appName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary
+                    )
+                    Text(
+                        text = app.packageName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(

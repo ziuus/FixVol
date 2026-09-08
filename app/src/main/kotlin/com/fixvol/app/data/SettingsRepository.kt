@@ -22,6 +22,7 @@ data class FixVolSettings(
     val globalRules: GlobalRules = GlobalRules(),
     val appRules: Map<String, AppRule> = emptyMap(),
     val cooldownMs: Long = 2500L,
+    val triggerOnlyOnFirstPlay: Boolean = true,
     val debugLogging: Boolean = false
 )
 
@@ -29,6 +30,7 @@ class SettingsRepository(private val context: Context) {
 
     private val KEY_ENABLED = booleanPreferencesKey("enabled")
     private val KEY_COOLDOWN_MS = longPreferencesKey("cooldown_ms")
+    private val KEY_FIRST_PLAY_ONLY = booleanPreferencesKey("first_play_only")
     private val KEY_DEBUG_LOGGING = booleanPreferencesKey("debug_logging")
 
     // Category keys
@@ -46,6 +48,7 @@ class SettingsRepository(private val context: Context) {
     val settingsFlow: Flow<FixVolSettings> = context.dataStore.data.map { prefs ->
         val enabled = prefs[KEY_ENABLED] ?: true
         val cooldownMs = prefs[KEY_COOLDOWN_MS] ?: 2500L
+        val triggerOnlyOnFirstPlay = prefs[KEY_FIRST_PLAY_ONLY] ?: true
         val debugLogging = prefs[KEY_DEBUG_LOGGING] ?: false
 
         val defaultCats = GlobalRules.defaultCategoryRules()
@@ -68,6 +71,7 @@ class SettingsRepository(private val context: Context) {
             globalRules = GlobalRules(enabled = enabled, categoryRules = categoryRules),
             appRules = appRules,
             cooldownMs = cooldownMs,
+            triggerOnlyOnFirstPlay = triggerOnlyOnFirstPlay,
             debugLogging = debugLogging
         )
     }
@@ -104,6 +108,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun setCooldownMs(cooldownMs: Long) {
         context.dataStore.edit { prefs ->
             prefs[KEY_COOLDOWN_MS] = cooldownMs
+        }
+    }
+
+    suspend fun setTriggerOnlyOnFirstPlay(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_FIRST_PLAY_ONLY] = enabled
         }
     }
 

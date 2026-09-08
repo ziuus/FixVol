@@ -60,18 +60,7 @@ fun DebugScreen(
                         color = if (settings.enabled) StatusActiveGreen else StatusPausedAmber
                     )
 
-                    HorizontalDivider(Modifier.padding(vertical = 12.dp), color = BorderSubtle)
-
-                    Text(
-                        text = "Last Action:",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = TextSecondary
-                    )
-                    Text(
-                        text = "System UI volume request ready",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextPrimary
-                    )
+                    // Last Action omitted for production version as it requires service binding
                 }
             }
 
@@ -91,6 +80,11 @@ fun DebugScreen(
                         text = "AudioPlaybackCallback: Supported (API 26+)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextPrimary
+                    )
+                    Text(
+                        text = "isActive reflection: Supported (API 29+)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (android.os.Build.VERSION.SDK_INT >= 29) TextPrimary else StatusPausedAmber
                     )
                     Text(
                         text = "Native UI adjustStreamVolume: Supported",

@@ -48,6 +48,7 @@ class PlaybackMonitorService : LifecycleService() {
         settingsRepository.settingsFlow.onEach { settings ->
             currentSettings = settings
             eventCoordinator.cooldownMs = settings.cooldownMs
+            eventCoordinator.triggerOnlyOnFirstPlay = settings.triggerOnlyOnFirstPlay
             if (!settings.enabled) {
                 stopSelf()
             }

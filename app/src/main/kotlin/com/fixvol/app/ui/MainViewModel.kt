@@ -68,6 +68,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setTriggerOnlyOnFirstPlay(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setTriggerOnlyOnFirstPlay(enabled)
+        }
+    }
+
     fun setDebugLogging(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setDebugLogging(enabled)

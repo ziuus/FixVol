@@ -70,6 +70,36 @@ fun SettingsScreen(
                             activeTrackColor = PrimaryEmerald
                         )
                     )
+
+                    HorizontalDivider(Modifier.padding(vertical = 12.dp), color = BorderSubtle)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Trigger Only On First Play",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "Pops UI once when sound starts. Suppresses continuous popups during active playback.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Switch(
+                            checked = settings.triggerOnlyOnFirstPlay,
+                            onCheckedChange = { viewModel.setTriggerOnlyOnFirstPlay(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = LightSurface,
+                                checkedTrackColor = PrimaryEmerald
+                            )
+                        )
+                    }
                 }
             }
 

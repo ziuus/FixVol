@@ -9,14 +9,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import com.fixvol.app.data.AppMetadata
 import com.fixvol.app.ui.theme.FixVolTheme
 
-sealed class Screen {
-    object Main : Screen()
-    data class AppConfig(val app: AppMetadata) : Screen()
-    object Debug : Screen()
-    object Settings : Screen()
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+
+sealed class Screen(val route: String) {
+    object Main : Screen("main")
+    object AppConfig : Screen("app_config/{packageName}") {
+        fun createRoute(packageName: String) = "app_config/$packageName"
+    }
+    object Debug : Screen("debug")
+    object Settings : Screen("settings")
 }
 
 class MainActivity : ComponentActivity() {
@@ -35,27 +44,50 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppNavigation(viewModel: MainViewModel) {
-    var currentScreen by remember { mutableStateOf<Screen>(Screen.Main) }
+    val navController = rememberNavController()
 
-    when (val screen = currentScreen) {
-        is Screen.Main -> MainScreen(
-            viewModel = viewModel,
-            onNavigateToAppConfig = { app -> currentScreen = Screen.AppConfig(app) },
-            onNavigateToDebug = { currentScreen = Screen.Debug },
-            onNavigateToSettings = { currentScreen = Screen.Settings }
-        )
-        is Screen.AppConfig -> AppConfigScreen(
-            app = screen.app,
-            viewModel = viewModel,
-            onBack = { currentScreen = Screen.Main }
-        )
-        is Screen.Debug -> DebugScreen(
-            viewModel = viewModel,
-            onBack = { currentScreen = Screen.Main }
-        )
-        is Screen.Settings -> SettingsScreen(
-            viewModel = viewModel,
-            onBack = { currentScreen = Screen.Main }
-        )
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Main.route,
+        enterTransition = { androidx.compose.animation.fadeIn() },
+        exitTransition = { androidx.compose.animation.fadeOut() },
+        popEnterTransition = { androidx.compose.animation.fadeIn() },
+        popExitTransition = { androidx.compose.animation.fadeOut() }
+    ) {
+        composable(Screen.Main.route) {
+            MainScreen(
+                viewModel = viewModel,
+                onNavigateToAppConfig = { app -> navController.navigate(Screen.AppConfig.createRoute(app.packageName)) },
+                onNavigateToDebug = { navController.navigate(Screen.Debug.route) },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
+            )
+        }
+        composable(
+            route = Screen.AppConfig.route,
+            arguments = listOf(navArgument("packageName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val packageName = backStackEntry.arguments?.getString("packageName") ?: return@composable
+            val installedApps by viewModel.installedApps.collectAsState()
+            val app = installedApps.find { it.packageName == packageName }
+            if (app != null) {
+                AppConfigScreen(
+                    app = app,
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(Screen.Debug.route) {
+            DebugScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }
