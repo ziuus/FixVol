@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Waveform path: a smooth sinusoidal ribbon, centered vertically -->
     <path
-        android:fillColor="#059669"
-        android:pathData="M36,36h12v36h-12zM60,24h12v60h-12z" />
+        android:pathData="
+            M 14,54
+            C 20,54 20,32 28,32
+            C 36,32 36,76 44,76
+            C 52,76 52,22 60,22
+            C 68,22 68,76 76,76
+            C 84,76 84,32 92,32
+            C 94,32 94,54 94,54"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="14"
+                android:startY="54"
+                android:endX="94"
+                android:endY="54">
+                <item android:offset="0" android:color="#2D1B69" />
+                <item android:offset="0.5" android:color="#6B21A8" />
+                <item android:offset="1" android:color="#7C3AED" />
+            </gradient>
+        </aapt:attr>
+    </path>
 </vector>
