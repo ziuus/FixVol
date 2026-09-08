@@ -4,6 +4,12 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+// ── Version derived from git tag (e.g. v1.2.0 → code=10200, name="1.2.0") ──
+// Falls back to hardcoded values for local development builds.
+val tagName = System.getenv("GITHUB_REF_NAME")
+    ?.takeIf { it.matches(Regex("v\\d+\\.\\d+\\.\\d+")) }
+val semver = tagName?.removePrefix("v")?.split(".")?.map { it.toInt() }
+
 android {
     namespace = "com.fixvol.app"
     compileSdk = 35
@@ -12,8 +18,10 @@ android {
         applicationId = "com.fixvol.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = semver?.let { (major, minor, patch) ->
+            major * 10_000 + minor * 100 + patch
+        } ?: 3
+        versionName = semver?.joinToString(".") ?: "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -21,8 +29,27 @@ android {
         }
     }
 
+    // ── Signing ─────────────────────────────────────────────────────────────
+    // In CI: RELEASE_STORE_FILE / RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS
+    //        / RELEASE_KEY_PASSWORD are set by the release workflow.
+    // Locally: leave unset → release builds produce an unsigned APK (for local
+    //          testing only; the CI always produces a properly signed APK).
+    val releaseStoreFile = System.getenv("RELEASE_STORE_FILE")
+    signingConfigs {
+        if (releaseStoreFile != null) {
+            create("release") {
+                storeFile = file(releaseStoreFile)
+                storePassword = System.getenv("RELEASE_STORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = if (releaseStoreFile != null)
+                signingConfigs.getByName("release") else null
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

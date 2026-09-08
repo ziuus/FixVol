@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build & Test
+    name: Build, Lint & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -25,13 +25,24 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run Unit Tests
-        run: ./gradlew test --stacktrace
+      - name: Run unit tests
+        run: ./gradlew test --no-daemon --stacktrace
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Run Android Lint
+        run: ./gradlew lint --no-daemon
 
-      - name: Upload Debug APK
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: FixVol-Debug-APK

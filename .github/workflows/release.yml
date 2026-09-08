@@ -3,16 +3,30 @@ name: FixVol Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'   # strict semver tags only: v1.2.3
 
 jobs:
   release:
-    name: Build & Publish Release
+    name: Build, Sign & Publish
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to create GitHub Releases
+      contents: write   # required to create GitHub Releases
 
     steps:
+      # ── Guard: fail immediately if signing secrets are missing ───────────────
+      # An unsigned release APK cannot be installed on Android. This prevents
+      # silently shipping a broken build.
+      - name: Verify signing secrets are configured
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error title=Missing secret::KEYSTORE_BASE64 is not set."
+            echo "::error::Generate a keystore and upload it as a base64-encoded GitHub secret."
+            echo "::error::See README.md → 'Setting up release signing' for instructions."
+            exit 1
+          fi
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -27,47 +41,42 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests
-        run: ./gradlew test --stacktrace
+        run: ./gradlew test --no-daemon --stacktrace
 
-      - name: Build release APK
-        run: ./gradlew assembleRelease --stacktrace
-
-      # ── Optional: sign the APK if secrets are configured ──────────────────
-      # To enable signing, add these secrets in your repo settings:
-      #   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
-      - name: Sign APK
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
-        uses: r0adkll/sign-android-release@v1
-        id: sign_apk
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Rename APK for release
+      - name: Decode release keystore
         run: |
-          VERSION="${GITHUB_REF_NAME}"
-          UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-          SIGNED="${{ steps.sign_apk.outputs.signedReleaseFile }}"
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > "${{ runner.temp }}/release.jks"
 
-          # Use signed APK if signing ran, otherwise fall back to unsigned
-          SOURCE="${SIGNED:-$UNSIGNED}"
-          DEST="FixVol-${VERSION}.apk"
+      # Signing is wired into Gradle (signingConfigs block in build.gradle.kts).
+      # The build reads env vars → produces a properly signed app-release.apk.
+      - name: Build signed release APK
+        env:
+          RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
+          RELEASE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
 
-          cp "$SOURCE" "$DEST"
-          echo "APK_PATH=$DEST" >> $GITHUB_ENV
+      - name: Cleanup keystore from runner
+        if: always()
+        run: rm -f "${{ runner.temp }}/release.jks"
+
+      - name: Rename APK
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk "FixVol-${GITHUB_REF_NAME}.apk"
+          echo "APK_PATH=FixVol-${GITHUB_REF_NAME}.apk" >> "$GITHUB_ENV"
 
       - name: Extract release notes from CHANGELOG
-        id: changelog
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"   # strip leading 'v'
-          NOTES=$(awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md)
-          if [ -z "$NOTES" ]; then
-            NOTES="Release $GITHUB_REF_NAME"
-          fi
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Extract section body, strip horizontal rules and leading/trailing blanks
+          NOTES=$(awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md \
+                  | sed '/^---$/d' \
+                  | sed -e '/^[[:space:]]*$/{ N; /^\n[[:space:]]*$/d; }')
+          [ -z "$NOTES" ] && NOTES="Release ${GITHUB_REF_NAME}"
           echo "$NOTES" > release_notes.txt
+          echo "Release notes:"
+          cat release_notes.txt
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

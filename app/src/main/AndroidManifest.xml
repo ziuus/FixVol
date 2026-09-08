@@ -15,12 +15,15 @@
         android:label="FixVol"
         android:supportsRtl="true"
         android:theme="@style/Theme.FixVol"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="35">
 
-        <!-- Google AdMob Application ID (Replace with your real AdMob App ID) -->
+        <!-- TODO: Replace with your real AdMob App ID before publishing.
+             Current value is Google's public test ID — ads will not earn revenue. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713"/>
+
 
         <activity
             android:name=".ui.MainActivity"

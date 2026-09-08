@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Config for FixVol
+    Enforces HTTPS-only traffic for all domains (no cleartext permitted).
+    AdMob/Google services all operate over HTTPS, so this causes no breakage.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust the system certificate store only (no user-installed CAs) -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

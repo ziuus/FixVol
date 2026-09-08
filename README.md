@@ -97,8 +97,8 @@ Android SystemUI
 ### Commands
 ```bash
 # Clone the repository
-git clone https://github.com/fixvol/fixvol.git
-cd fixvol
+git clone https://github.com/ziuus/FixVol.git
+cd FixVol
 
 # Run unit tests
 ./gradlew test
@@ -106,6 +106,68 @@ cd fixvol
 # Build Debug APK
 ./gradlew assembleDebug
 ```
+
+---
+
+## 📲 Installing via Obtainium
+
+[Obtainium](https://github.com/ImranR98/Obtainium) lets you install and auto-update FixVol directly from GitHub — no Play Store required.
+
+1. Install Obtainium from its [GitHub Releases](https://github.com/ImranR98/Obtainium/releases).
+2. Tap **Add App**.
+3. Enter the source URL: `https://github.com/ziuus/FixVol`
+4. Obtainium will detect the latest GitHub Release and download `FixVol-vX.Y.Z.apk` automatically.
+5. Tap **Install** when prompted.
+
+Future releases are downloaded and applied automatically in the background.
+
+---
+
+## 🔑 Setting Up Release Signing (for maintainers)
+
+The release workflow requires a Java keystore uploaded as GitHub Secrets. **Without this, the release workflow will fail intentionally** — unsigned APKs cannot be installed on Android.
+
+### 1 — Generate a keystore (one-time setup)
+
+```bash
+keytool -genkey -v \
+  -keystore fixvol-release.jks \
+  -keyalg RSA -keysize 4096 \
+  -validity 10000 \
+  -alias fixvol \
+  -storepass YOUR_STORE_PASSWORD \
+  -keypass YOUR_KEY_PASSWORD \
+  -dname "CN=FixVol, O=FixVol, C=IN"
+```
+
+> **Keep `fixvol-release.jks` safe and backed up.** Losing it means you can never ship an update that installs over the existing app.
+
+### 2 — Encode the keystore as base64
+
+```bash
+base64 -w 0 fixvol-release.jks > fixvol-release.jks.b64
+cat fixvol-release.jks.b64   # copy this output
+```
+
+### 3 — Add GitHub Secrets
+
+Go to **GitHub → Settings → Secrets and variables → Actions → New repository secret** and add:
+
+| Secret name | Value |
+|---|---|
+| `KEYSTORE_BASE64` | The base64 string from step 2 |
+| `KEYSTORE_PASSWORD` | Your `--storepass` value |
+| `KEY_ALIAS` | `fixvol` |
+| `KEY_PASSWORD` | Your `--keypass` value |
+
+### 4 — Publish a new release
+
+```bash
+git tag v1.3.0
+git push origin v1.3.0
+```
+
+The release workflow triggers automatically, builds a signed APK, and publishes a GitHub Release that Obtainium picks up.
 
 ---
 
