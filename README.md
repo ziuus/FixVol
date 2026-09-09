@@ -1,6 +1,6 @@
 # FixVol
 
-**Native Android volume control for broken volume buttons.**
+**Most user friendly and ease of use Native Android volume control for broken volume buttons.**
 
 Play audio.
 FixVol detects it.
