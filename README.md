@@ -1,6 +1,7 @@
 # FixVol
 
 **The most user-friendly and privacy-respecting volume control for Android devices with broken, unreliable physical volume buttons.**
+
 Play audio.
 FixVol detects it.
 Android's native volume panel appears.
