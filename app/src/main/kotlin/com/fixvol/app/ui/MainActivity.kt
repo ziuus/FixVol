@@ -12,7 +12,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import com.fixvol.app.data.AppMetadata
 import com.fixvol.app.ui.theme.FixVolTheme
-import com.google.android.gms.ads.MobileAds
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,7 +34,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MobileAds.initialize(this) {}
         setContent {
             FixVolTheme {
                 AppNavigation(viewModel)

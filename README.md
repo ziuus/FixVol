@@ -2,9 +2,7 @@
 
 **The most user-friendly and privacy-respecting volume control for Android devices with broken, unreliable physical volume buttons.**
 
-Play audio.
-FixVol detects it.
-Android's native volume panel appears.
+Play audio. FixVol detects it. Android's native volume panel appears.
 
 ---
 
@@ -46,7 +44,7 @@ The actual volume level remains 100% unchanged.
 - **Genuine SystemUI Controller**: Triggers Android's native volume slider without altering volume levels.
 - **Deterministic Rule Engine**: Custom rules per audio type (Media, Alarm, Ringtone, Calls) and per application.
 - **Smart Debouncing**: Prevents repetitive volume UI triggers on audio state changes.
-- **100% Offline & Private**: Zero analytics, zero cloud services, zero remote configuration, zero tracking.
+- **100% Offline & Private**: Zero analytics, zero cloud services, zero remote configuration, zero tracking, zero advertising.
 - **Material 3 Design**: Built using Kotlin, Jetpack Compose, and DataStore.
 - **Zero Heavy Permissions**: No accessibility hacks, no screen overlay permissions, no microphone access.
 
@@ -91,10 +89,12 @@ Android SystemUI
 ## 🛠️ Building from Source
 
 ### Prerequisites
+
 - JDK 17
 - Android SDK 35 / 37
 
 ### Commands
+
 ```bash
 # Clone the repository
 git clone https://github.com/ziuus/FixVol.git
@@ -103,8 +103,11 @@ cd FixVol
 # Run unit tests
 ./gradlew test
 
-# Build Debug APK
+# Build debug APK (unsigned, for local testing only)
 ./gradlew assembleDebug
+
+# Build signed release APK (requires signing secrets — see below)
+./gradlew assembleRelease
 ```
 
 ---
@@ -113,10 +116,22 @@ cd FixVol
 
 [Obtainium](https://github.com/ImranR98/Obtainium) lets you install and auto-update FixVol directly from GitHub — no Play Store required.
 
-1. Install Obtainium from its [GitHub Releases](https://github.com/ImranR98/Obtainium/releases).
+### One-tap install
+
+<p align="center">
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium%3A%2F%2Fapp%253Fid%253Dcom.fixvol.app%2526url%253Dhttps%253A%252F%252Fgithub.com%252Fziuus%252FFixVol%2526author%253Dziuus%2526name%253DFixVol">
+    <img src="assets/badge_obtainium.png" alt="Install with Obtainium" width="260">
+  </a>
+</p>
+
+Tap the badge above. If you have Obtainium installed, it imports FixVol immediately. If not, you'll get a link to install Obtainium first.
+
+### Manual setup
+
+1. Install Obtainium from its [GitHub Releases](https://github.com/ImranR98/Obtainium/releases) or [F-Droid](https://f-droid.org/packages/dev.imranr.obtainium.fdroid/).
 2. Tap **Add App**.
 3. Enter the source URL: `https://github.com/ziuus/FixVol`
-4. Obtainium will detect the latest GitHub Release and download `FixVol-vX.Y.Z.apk` automatically.
+4. Obtainium detects the latest GitHub Release and downloads `FixVol-vX.Y.Z.apk` automatically.
 5. Tap **Install** when prompted.
 
 Future releases are downloaded and applied automatically in the background.
@@ -167,19 +182,21 @@ git tag v1.3.0
 git push origin v1.3.0
 ```
 
-The release workflow triggers automatically, builds a signed APK, and publishes a GitHub Release that Obtainium picks up.
+The release workflow triggers automatically, builds a signed APK named `FixVol-v1.3.0.apk`, and publishes a GitHub Release that Obtainium picks up.
 
 ---
 
 ## 🔒 Privacy Policy
 
 FixVol:
+
 - Does not collect personal data.
 - Does not send data to any server.
 - Does not require an account.
 - Does not use advertising.
 - Does not use analytics or crash reporting.
 - Does not record microphone audio or inspect media contents.
+- Operates fully offline — no internet permission declared.
 - Stores user settings locally on-device using Jetpack DataStore.
 
 Read the full [`PRIVACY.md`](PRIVACY.md).
