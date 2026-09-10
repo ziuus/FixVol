@@ -7,9 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-09-10
+
+### Removed
+
+- **AdMob advertising SDK**: Removed all AdMob dependencies, initialization, and banner ad UI. FixVol now operates fully offline with no internet permission and no advertising.
+
+### Fixed
+
+- **Release pipeline**: Added signing keystore and GitHub Actions secrets so the release workflow produces signed release APKs (`FixVol-vX.Y.Z.apk`) usable by Obtainium.
+- **Obtainium integration**: Added Obtainium install badge to README with one-tap import link.
+- **Documentation accuracy**: Corrected privacy claims, CONTRIBUTING guide, and repository URLs to match the actual codebase.
+
+### Changed
+
+- **Session debounce**: Renamed "First Play Only session tracking" to "Trigger Only On First Play" debounce — local-only session window to suppress duplicate volume panel triggers. No telemetry, no remote data.
+
+---
+
 ## [1.2.0] - 2026-09-08
 
 ### Added
+
 - **Premium app icon**: New waveform icon with indigo-violet gradient.
 
 ---
@@ -17,8 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2026-09-07
 
 ### Added
-- **AdMob integration**: Non-intrusive banner ads via Google Play Services.
-- **First Play Only session tracking**: Volume fix fires only on the first audio playback per session.
+
+- **First Play Only debounce**: Volume panel fires once per audio session, suppressing continuous triggers during active playback.
 - **KMP Shared Module**: Extracted core business logic into a Kotlin Multiplatform shared module for future iOS support.
 
 ---
@@ -26,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-09-07
 
 ### Added
+
 - **Core Playback Monitoring**: Intercepts Android `AudioPlaybackCallback` and active `AudioPlaybackConfiguration` events.
 - **Audio Classification**: `PlaybackClassifier` maps Android `AudioAttributes` usages to `AudioCategory` (Media, Alarm, Ringtone, Notifications, Calls, System).
 - **Audio Route Detection**: Detects Speaker, Bluetooth, Headset, USB output routing.
