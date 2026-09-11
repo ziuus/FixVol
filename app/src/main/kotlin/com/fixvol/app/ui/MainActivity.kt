@@ -4,15 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
-import com.fixvol.app.data.AppMetadata
 import com.fixvol.app.ui.theme.FixVolTheme
-
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -46,13 +48,30 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(viewModel: MainViewModel) {
     val navController = rememberNavController()
 
+    // Splash: brief visible moment while first composition settles, then fade out
+    var splashVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        // Wait a short moment so the splash is actually seen on slow devices
+        kotlinx.coroutines.delay(280)
+        splashVisible = false
+    }
+
+    AnimatedVisibility(
+        visible = splashVisible,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        FixVolSplash(visible = splashVisible)
+    }
+
     NavHost(
         navController = navController,
         startDestination = Screen.Main.route,
-        enterTransition = { androidx.compose.animation.fadeIn() },
-        exitTransition = { androidx.compose.animation.fadeOut() },
-        popEnterTransition = { androidx.compose.animation.fadeIn() },
-        popExitTransition = { androidx.compose.animation.fadeOut() }
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() },
+        popEnterTransition = { fadeIn() },
+        popExitTransition = { fadeOut() }
     ) {
         composable(Screen.Main.route) {
             MainScreen(

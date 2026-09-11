@@ -29,6 +29,7 @@ import com.fixvol.app.data.AppMetadata
 import com.fixvol.app.rules.RuleMode
 import com.fixvol.app.ui.theme.*
 import coil.compose.AsyncImage
+import com.fixvol.app.ui.QuickControlsCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,66 +72,80 @@ fun MainScreen(
         },
         containerColor = LightBgBase
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // Status Card
-            item {
-                StatusCard(
-                    enabled = settings.enabled,
-                    onToggle = { viewModel.toggleMasterEnable(it) }
-                )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 100.dp)
+            ) {
+                // Status Card
+                item {
+                    StatusCard(
+                        enabled = settings.enabled,
+                        onToggle = { viewModel.toggleMasterEnable(it) }
+                    )
+                }
+
+                // Test Volume Panel Action
+                item {
+                    TestVolumeCard(
+                        testResult = testResult,
+                        onTestClick = { viewModel.testVolumePanel() }
+                    )
+                }
+
+                // Category Rules Section Header
+                item {
+                    Text(
+                        text = "Automatic volume panel",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = TextPrimary,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                // Global Category Toggles
+                item {
+                    CategoryTogglesCard(
+                        categoryRules = settings.globalRules.categoryRules,
+                        onCategoryToggle = { cat, enabled -> viewModel.toggleCategory(cat, enabled) }
+                    )
+                }
+
+                // App Rules Section Header
+                item {
+                    Text(
+                        text = "Applications",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = TextPrimary,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                // Installed Apps List
+                items(installedApps) { app ->
+                    AppRowItem(
+                        app = app,
+                        ruleMode = settings.appRules[app.packageName]?.mode ?: RuleMode.FOLLOW_GLOBAL,
+                        onClick = { onNavigateToAppConfig(app) }
+                    )
+                }
             }
 
-            // Test Volume Panel Action
-            item {
-                TestVolumeCard(
-                    testResult = testResult,
-                    onTestClick = { viewModel.testVolumePanel() }
-                )
-            }
-
-            // Category Rules Section Header
-            item {
-                Text(
-                    text = "Automatic volume panel",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = TextPrimary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-
-            // Global Category Toggles
-            item {
-                CategoryTogglesCard(
-                    categoryRules = settings.globalRules.categoryRules,
-                    onCategoryToggle = { cat, enabled -> viewModel.toggleCategory(cat, enabled) }
-                )
-            }
-
-            // App Rules Section Header
-            item {
-                Text(
-                    text = "Applications",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = TextPrimary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-
-            // Installed Apps List
-            items(installedApps) { app ->
-                AppRowItem(
-                    app = app,
-                    ruleMode = settings.appRules[app.packageName]?.mode ?: RuleMode.FOLLOW_GLOBAL,
-                    onClick = { onNavigateToAppConfig(app) }
-                )
-            }
+            // Quick controls for broken hardware buttons — fixed to bottom
+            QuickControlsCard(
+                settings = settings,
+                viewModel = viewModel,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 16.dp)
+            )
         }
     }
 }
