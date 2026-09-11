@@ -41,7 +41,7 @@ fun FixVolSplash(
                 modifier = Modifier.padding(32.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.mipmap.ic_launcher),
+                    painter = painterResource(id = R.drawable.ic_splash_logo),
                     contentDescription = "FixVol",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
