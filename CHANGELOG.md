@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-09-11
+
+### Added
+
+- **Notification volume display**: The FixVol monitoring notification now shows the current volume level (`Volume: X / Y`) alongside the native volume control status.
+- **Notification tap to open volume panel**: Tapping the FixVol notification triggers the native volume panel, so you can adjust volume directly from the notification.
+- **Debug screen improvements**: Added media-projection capture of the current screen (via `HardwareBuffer`) to diagnose volume panel appearance, plus a live current-volume readout and a system capability verification panel.
+
+### Fixed
+
+- **Debug screenshot capturing**: Replaced broken raw-pixel extraction (which produced corrupt/empty images) with `Bitmap.wrapHardwareBuffer` for correct screen capture.
+
+---
+
 ## [1.3.0] - 2026-09-10
 
 ### Removed

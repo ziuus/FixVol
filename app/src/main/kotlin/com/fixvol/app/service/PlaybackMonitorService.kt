@@ -6,18 +6,21 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.fixvol.app.audio.AudioCategory
 import com.fixvol.app.audio.AudioRouteDetector
+import com.fixvol.app.audio.PlaybackEvent
+import com.fixvol.app.audio.PlaybackState
 import com.fixvol.app.audio.PlaybackMonitor
 import com.fixvol.app.core.EventCoordinator
 import com.fixvol.app.core.NativeVolumeController
 import com.fixvol.app.data.FixVolSettings
 import com.fixvol.app.data.SettingsRepository
-import com.fixvol.app.ui.MainActivity
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -29,6 +32,8 @@ class PlaybackMonitorService : LifecycleService() {
     private lateinit var settingsRepository: SettingsRepository
 
     private var currentSettings: FixVolSettings = FixVolSettings()
+    private var currentVolumeLevel: Int = 0
+    private var currentMaxVolume: Int = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -40,6 +45,7 @@ class PlaybackMonitorService : LifecycleService() {
         settingsRepository = SettingsRepository(this)
 
         createNotificationChannel()
+        refreshCurrentVolume()
 
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
@@ -72,6 +78,32 @@ class PlaybackMonitorService : LifecycleService() {
         playbackMonitor.stopMonitoring()
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            TRIGGER_VOLUME_ACTION -> {
+                Log.d(TAG, "Notification tap triggered volume panel request")
+                try {
+                    eventCoordinator.processEvent(
+                        event = PlaybackEvent(
+                            id = "notification_tap",
+                            packageName = "notification_tap",
+                            uid = 0,
+                            usage = null,
+                            contentType = null,
+                            category = AudioCategory.MEDIA,
+                            state = PlaybackState.ACTIVE
+                        ),
+                        globalRules = currentSettings.globalRules,
+                        appRules = currentSettings.appRules
+                    )
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to trigger volume from notification", e)
+                }
+            }
+        }
+        return START_STICKY
+    }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -88,31 +120,55 @@ class PlaybackMonitorService : LifecycleService() {
     }
 
     private fun createNotification(): Notification {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("FixVol")
+            .setContentText("Volume: $currentVolumeLevel / $currentMaxVolume — Native volume control active")
+            .setSmallIcon(android.R.drawable.ic_lock_silent_mode_off)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setContentIntent(createTriggerPendingIntent())
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .build()
+    }
+
+    private fun createTriggerPendingIntent(): PendingIntent {
+        val intent = Intent(this, PlaybackMonitorService::class.java).apply {
+            action = TRIGGER_VOLUME_ACTION
         }
-        val pendingIntent = PendingIntent.getActivity(
+        return PendingIntent.getService(
             this,
             0,
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+    }
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+    fun refreshCurrentVolume() {
+        val manager = applicationContext.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+        currentVolumeLevel = manager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        currentMaxVolume = manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        updateNotification()
+    }
+
+    private fun updateNotification() {
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("FixVol")
-            .setContentText("Native volume control is active")
+            .setContentText("Volume: $currentVolumeLevel / $currentMaxVolume — Native volume control active")
             .setSmallIcon(android.R.drawable.ic_lock_silent_mode_off)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(createTriggerPendingIntent())
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build()
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(NOTIFICATION_ID, notification)
     }
 
     companion object {
         private const val TAG = "PlaybackMonitorService"
         private const val CHANNEL_ID = "fixvol_monitoring_channel"
         private const val NOTIFICATION_ID = 1001
+        const val TRIGGER_VOLUME_ACTION = "com.fixvol.app.ACTION_TRIGGER_VOLUME"
 
         fun startService(context: Context) {
             val intent = Intent(context, PlaybackMonitorService::class.java)

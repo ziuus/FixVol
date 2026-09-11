@@ -20,8 +20,8 @@ android {
         targetSdk = 35
         versionCode = semver?.let { (major, minor, patch) ->
             major * 10_000 + minor * 100 + patch
-        } ?: 3
-        versionName = semver?.joinToString(".") ?: "1.2.0"
+        } ?: 4
+        versionName = semver?.joinToString(".") ?: "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
