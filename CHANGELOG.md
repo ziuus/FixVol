@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0] - 2026-09-11
+
+### Fixed
+
+- Fixed: Intelligent volume toggle now starts OFF on first install and is correctly activated when enabled (first-launch toggle bug fixed)
+- Added: Broken-button quick controls — lock screen, screenshot, and per-category volume panel triggers
+- Added: Splash screen with FixVol logo shown briefly on app launch
+- Added: Debug diagnostics screen with live volume readout and system capability verifier
+- Removed: Obtainium reference from debug config (privacy hardening)
+
 All notable changes to **FixVol** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
