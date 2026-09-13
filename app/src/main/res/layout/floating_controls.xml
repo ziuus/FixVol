@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:background="@drawable/fg_floating_controls_bg"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <!-- Volume trigger -->
+        <ImageButton
+            android:id="@+id/btn_volume"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Volume trigger"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_menu_music"
+            android:tint="#FFFFFFFF" />
+
+        <!-- Screenshot -->
+        <ImageButton
+            android:id="@+id/btn_screenshot"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Screenshot"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_menu_camera"
+            android:tint="#FFFFFFFF" />
+
+        <!-- Lock screen -->
+        <ImageButton
+            android:id="@+id/btn_lock"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Lock screen"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_menu_power"
+            android:tint="#FFFFFFFF" />
+
+        <!-- Power menu -->
+        <ImageButton
+            android:id="@+id/btn_power_menu"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Power menu"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_menu_info_details"
+            android:tint="#FFFFFFFF" />
+
+        <!-- Open app -->
+        <ImageButton
+            android:id="@+id/btn_open_app"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Open app"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_menu_music"
+            android:tint="#FFFFFFFF" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="4dp"
+            android:background="#CCFFFFFF" />
+
+        <!-- Toggle overlay visibility -->
+        <ImageButton
+            android:id="@+id/btn_toggle_visibility"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Hide/show floating controls"
+            android:rotation="45"
+            android:src="@android:drawable/ic_lock_silent_mode_off"
+            android:tint="#FFFFFFFF" />
+
+    </LinearLayout>
+</merge>

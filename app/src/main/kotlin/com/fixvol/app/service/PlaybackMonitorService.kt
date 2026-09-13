@@ -12,6 +12,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.os.PowerManager
+import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -31,6 +32,7 @@ import com.fixvol.app.ui.MainActivity
 import com.fixvol.app.ui.ScreenshotActivity
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class PlaybackMonitorService : LifecycleService() {
 
@@ -135,21 +137,43 @@ class PlaybackMonitorService : LifecycleService() {
     }
 
     private fun lockScreen() {
-        try {
-            val devicePolicyManager = getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
-            val adminComponent = ComponentName(this, DeviceAdminReceiver::class.java)
-            if (devicePolicyManager?.isAdminActive(adminComponent) == true) {
-                devicePolicyManager.lockNow()
-                Log.d(TAG, "Screen locked via DevicePolicyManager")
-            } else {
-                // Fallback: send broadcast to trigger screen off
-                sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
-                Log.d(TAG, "Screen lock via broadcast fallback")
+        // Try PowerManager.goToSleep (API 29+) first, via reflection since minSdk < 29
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+                if (powerManager?.isInteractive == true) {
+                    val goToSleep = PowerManager::class.java.getMethod("goToSleep", Long::class.java)
+                    goToSleep.invoke(powerManager, SystemClock.uptimeMillis())
+                    Log.d(TAG, "Screen locked via PowerManager.goToSleep")
+                    return
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "PowerManager.goToSleep failed, falling back", e)
             }
+        }
+        try {
+            sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
+            Log.d(TAG, "Screen lock via ACTION_SCREEN_OFF broadcast fallback")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to lock screen", e)
-            sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
         }
+    }
+
+    private fun toggleMonitoring() {
+        val newEnabled = !currentSettings.enabled
+        Log.d(TAG, "Toggle monitoring: $currentSettings.enabled -> $newEnabled")
+        currentSettings = currentSettings.copy(enabled = newEnabled)
+        lifecycleScope.launch {
+            settingsRepository.setEnabled(newEnabled)
+        }
+        if (newEnabled) {
+            if (!playbackMonitor.startMonitoring()) {
+                // Already running — just update state
+            }
+        } else {
+            playbackMonitor.stopMonitoring()
+        }
+        updateNotification()
     }
 
     private fun openPowerMenu() {

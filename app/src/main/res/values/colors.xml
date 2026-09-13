@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fg_button_tint">#FFFFFFFF</color>
+    <color name="fg_divider">#CCFFFFFF</color>
+    <color name="fg_background">#CC000000</color>
+</resources>

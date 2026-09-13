@@ -8,9 +8,15 @@
 ### Fixed
 - Fixed: Notification no longer shows "Native volume control active" text in content; actions are now the primary interaction surface
 
-## [1.5.0] - 2026-09-11
+## [1.5.2] - 2026-09-13
 
 ### Fixed
+- Fixed: Notification lock screen button crash — replaced broken DeviceAdminReceiver approach with reliable PowerManager.goToSleep() via reflection (API 29+) + ACTION_SCREEN_OFF broadcast fallback
+- Fixed: Screenshot capture broken — switched from unreliable ImageFormat.PRIVATE + HardwareBuffer.wrapHardwareBuffer() to ImageFormat.JPEG + direct byte buffer; added 300ms render delay for reliable capture
+- Fixed: Toggle button always showed "on" on fresh install — added serviceRunning state derivation so toggle reflects actual background watcher state (serviceRunning && settings.enabled)
+- Fixed: BootReceiver crash — flow.first() suspend call from BroadcastReceiver now wrapped in runBlocking
+- Fixed: SettingsRepository missing floatingControlsEnabled persistence — added KEY_FLOATING_CONTROLS_ENABLED, settingsFlow mapping, and setFloatingControlsEnabled() setter
+- Fixed: Duplicate Notification/NotificationChannel/NotificationManager/PendingIntent imports in PlaybackMonitorService
 - Fixed: App crash on launch — splash screen used XML adaptive icon via `R.mipmap.ic_launcher` which Compose's `Image` composable cannot decode; splash screen and all compose animation transitions permanently removed to eliminate the crash on this device.
 - Fixed: Intelligent volume toggle now starts OFF on first install and is correctly activated when enabled (first-launch toggle bug fixed)
 

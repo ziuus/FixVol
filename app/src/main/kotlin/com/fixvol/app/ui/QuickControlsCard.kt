@@ -1,7 +1,6 @@
 package com.fixvol.app.ui
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,16 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fixvol.app.ui.theme.*
-import java.io.File
+import com.fixvol.app.service.PlaybackMonitorService
 
-/**
- * Quick-access controls for common device actions when the physical
- * buttons are broken or hard to reach.
- *
- * Actions:
- * - Lock screen: sends ACTION_SCREEN_OFF broadcast (works on most devices).
- * - Screenshot: delegates to ScreenshotCapture (API 29+).
- */
+/**\n * Quick-access controls for common device actions when the physical\n * buttons are broken or hard to reach.\n *\n * Actions:\n * - Lock screen: uses PowerManager.goToSleep (Android 6+) with broadcast fallback.\n * - Screenshot: delegates to ScreenshotActivity (API 29+).\n */
 @Composable
 fun QuickControlsCard(
     settings: com.fixvol.app.data.FixVolSettings? = null,
@@ -78,7 +70,22 @@ fun QuickControlsCard(
                 }
                 FilledTonalButton(
                     onClick = {
-                        context.sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
+                        // Use the same reliable locking as the service, but from the app
+                        try {
+                            val powerManager = context.getSystemService(android.content.Context.POWER_SERVICE) as? android.os.PowerManager
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                                try {
+                                    val goToSleep = android.os.PowerManager::class.java.getMethod("goToSleep", Long::class.java)
+                                    goToSleep.invoke(powerManager, android.os.SystemClock.uptimeMillis())
+                                } catch (_: Exception) {
+                                    context.sendBroadcast(android.content.Intent(android.content.Intent.ACTION_SCREEN_OFF))
+                                }
+                            } else {
+                                context.sendBroadcast(android.content.Intent(android.content.Intent.ACTION_SCREEN_OFF))
+                            }
+                        } catch (e: Exception) {
+                            context.sendBroadcast(android.content.Intent(android.content.Intent.ACTION_SCREEN_OFF))
+                        }
                     },
                     colors = ButtonDefaults.filledTonalButtonColors(
                         containerColor = SecondaryDark,
@@ -122,7 +129,15 @@ fun QuickControlsCard(
                     )
                 }
                 FilledTonalButton(
-                    onClick = { /* delegate to ScreenshotCapture placed above */ },
+                    onClick = {
+                        try {
+                            val intent = Intent(context, com.fixvol.app.ui.ScreenshotActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            // Silently fail — user will see nothing if permission not granted
+                        }
+                    },
                     enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
                     colors = ButtonDefaults.filledTonalButtonColors(
                         containerColor = SecondaryDark,

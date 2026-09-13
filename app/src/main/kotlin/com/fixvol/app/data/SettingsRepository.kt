@@ -19,6 +19,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 data class FixVolSettings(
     val enabled: Boolean = true,
+    val floatingControlsEnabled: Boolean = true,
     val globalRules: GlobalRules = GlobalRules(),
     val appRules: Map<String, AppRule> = emptyMap(),
     val cooldownMs: Long = 2500L,
@@ -29,6 +30,7 @@ data class FixVolSettings(
 class SettingsRepository(private val context: Context) {
 
     private val KEY_ENABLED = booleanPreferencesKey("enabled")
+    private val KEY_FLOATING_CONTROLS_ENABLED = booleanPreferencesKey("floating_controls_enabled")
     private val KEY_COOLDOWN_MS = longPreferencesKey("cooldown_ms")
     private val KEY_FIRST_PLAY_ONLY = booleanPreferencesKey("first_play_only")
     private val KEY_DEBUG_LOGGING = booleanPreferencesKey("debug_logging")
@@ -47,6 +49,7 @@ class SettingsRepository(private val context: Context) {
 
     val settingsFlow: Flow<FixVolSettings> = context.dataStore.data.map { prefs ->
         val enabled = prefs[KEY_ENABLED] ?: true
+        val floatingControlsEnabled = prefs[KEY_FLOATING_CONTROLS_ENABLED] ?: true
         val cooldownMs = prefs[KEY_COOLDOWN_MS] ?: 2500L
         val triggerOnlyOnFirstPlay = prefs[KEY_FIRST_PLAY_ONLY] ?: true
         val debugLogging = prefs[KEY_DEBUG_LOGGING] ?: false
@@ -68,6 +71,7 @@ class SettingsRepository(private val context: Context) {
 
         FixVolSettings(
             enabled = enabled,
+            floatingControlsEnabled = floatingControlsEnabled,
             globalRules = GlobalRules(enabled = enabled, categoryRules = categoryRules),
             appRules = appRules,
             cooldownMs = cooldownMs,
@@ -79,6 +83,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun setEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setFloatingControlsEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_FLOATING_CONTROLS_ENABLED] = enabled
         }
     }
 
