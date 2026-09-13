@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1] - 2026-09-13
+
+### Added
+- Added: Notification quick-control action buttons — Volume, Screenshot, Lock screen (power button), Power Menu, and Open App (jump to app) directly from the foreground service notification
+
+### Fixed
+- Fixed: Notification no longer shows "Native volume control active" text in content; actions are now the primary interaction surface
+
 ## [1.5.0] - 2026-09-11
 
 ### Fixed

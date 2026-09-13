@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml:2:13-83
-INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml:2:13-83
+ADDED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml:2:13-83
+INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml:2:13-83
 	package
-		INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml
+		INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml
 	xmlns:android
-		ADDED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml:2:23-81
+		ADDED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml:2:23-81
 uses-sdk
-INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml reason: use-sdk injection requested
-INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml
-INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml
+INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml reason: use-sdk injection requested
+INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml
+INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml
 	android:targetSdkVersion
-		INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml
+		INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml
 	android:minSdkVersion
-		INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17167966836763086699.xml
+		INJECTED from /home/zius/Projects/FixVol/shared/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest5732195615996309101.xml
