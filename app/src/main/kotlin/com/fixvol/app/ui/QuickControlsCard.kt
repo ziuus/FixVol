@@ -19,8 +19,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fixvol.app.ui.theme.*
 import com.fixvol.app.service.PlaybackMonitorService
+import android.util.Log
 
-/**\n * Quick-access controls for common device actions when the physical\n * buttons are broken or hard to reach.\n *\n * Actions:\n * - Lock screen: uses PowerManager.goToSleep (Android 6+) with broadcast fallback.\n * - Screenshot: delegates to ScreenshotActivity (API 29+).\n */
+/**
+ * Quick-access controls for common device actions when the physical
+ * buttons are broken or hard to reach.
+ *
+ * Actions:
+ * - Lock screen: uses PowerManager.goToSleep (Android 6+) — no dead fallback.
+ * - Screenshot: delegates to ScreenshotActivity (API 29+).
+ */
 @Composable
 fun QuickControlsCard(
     settings: com.fixvol.app.data.FixVolSettings? = null,
@@ -70,21 +78,18 @@ fun QuickControlsCard(
                 }
                 FilledTonalButton(
                     onClick = {
-                        // Use the same reliable locking as the service, but from the app
                         try {
                             val powerManager = context.getSystemService(android.content.Context.POWER_SERVICE) as? android.os.PowerManager
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                                 try {
                                     val goToSleep = android.os.PowerManager::class.java.getMethod("goToSleep", Long::class.java)
                                     goToSleep.invoke(powerManager, android.os.SystemClock.uptimeMillis())
-                                } catch (_: Exception) {
-                                    context.sendBroadcast(android.content.Intent(android.content.Intent.ACTION_SCREEN_OFF))
+                                } catch (e: Exception) {
+                                    Log.w("QuickControls", "goToSleep failed: ${e.message}")
                                 }
-                            } else {
-                                context.sendBroadcast(android.content.Intent(android.content.Intent.ACTION_SCREEN_OFF))
                             }
                         } catch (e: Exception) {
-                            context.sendBroadcast(android.content.Intent(android.content.Intent.ACTION_SCREEN_OFF))
+                            Log.w("QuickControls", "Lock failed: ${e.message}")
                         }
                     },
                     colors = ButtonDefaults.filledTonalButtonColors(
@@ -104,7 +109,7 @@ fun QuickControlsCard(
                 }
             }
 
-            HorizontalDivider(Modifier.padding(vertical = 12.dp), color = BorderSubtle)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = BorderSubtle)
 
             Row(
                 modifier = Modifier
@@ -120,7 +125,7 @@ fun QuickControlsCard(
                         color = TextPrimary
                     )
                     Text(
-                        text = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)
+                        text = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
                             "Requires Android 10 or higher"
                         else
                             "Capture the current screen",
@@ -138,7 +143,7 @@ fun QuickControlsCard(
                             // Silently fail — user will see nothing if permission not granted
                         }
                     },
-                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
+                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q,
                     colors = ButtonDefaults.filledTonalButtonColors(
                         containerColor = SecondaryDark,
                         contentColor = LightSurface
@@ -148,12 +153,12 @@ fun QuickControlsCard(
                     Icon(
                         Icons.Default.LockOpen,
                         contentDescription = null,
-                        tint = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) PrimaryEmerald else TextSecondary,
+                        tint = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) PrimaryEmerald else TextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) "Capture" else "N/A",
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) "Capture" else "N/A",
                         fontSize = MaterialTheme.typography.labelMedium.fontSize
                     )
                 }

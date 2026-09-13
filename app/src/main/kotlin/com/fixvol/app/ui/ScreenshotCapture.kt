@@ -71,7 +71,7 @@ fun ScreenshotCapture(
                 val height = metrics.heightPixels
                 val density = metrics.densityDpi
 
-                val reader = ImageReader.newInstance(width, height, ImageFormat.PRIVATE, 2)
+                val reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2)
                 val vd = proj.createVirtualDisplay(
                     "FixVol-Screenshot",
                     width, height, density,

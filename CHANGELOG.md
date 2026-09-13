@@ -30,3 +30,12 @@
 ### Removed
 - Removed: Obtainium debug dependency reference
 - Removed: Splash screen (`FixVolSplash.kt`) and all compose animation transitions — caused `IllegalArgumentException` on this device with no viable workaround without Compose version upgrade.
+
+## [1.5.3] - 2026-09-13
+
+### Fixed
+- Fixed: Screenshot now works on Android 10 (API 29) — was incorrectly requiring Android 11 (API 30) in `ScreenshotActivity` and `QuickControlsCard`. MediaProjection is available from API 29.
+- Fixed: Lock screen button no longer silently fails — removed dead `ACTION_SCREEN_OFF` broadcast fallback (third-party apps cannot trigger this). Now logs when `PowerManager.goToSleep` fails instead of falling back to a no-op.
+- Fixed: Power Menu button no longer opens wrong settings screen — replaced broken `ACTION_USAGE_ACCESS_SETTINGS` intent (copy-paste bug) with honest diagnostics logging. No reliable public API exists for third-party apps to trigger the system power menu.
+- Fixed: `ScreenshotCapture` composable now uses `ImageFormat.JPEG` instead of `ImageFormat.PRIVATE` for consistent capture across devices.
+- Fixed: QuickControlsCard lock button exception handling — now logs failures instead of silently catching and discarding all exceptions.

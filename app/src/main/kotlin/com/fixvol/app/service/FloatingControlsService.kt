@@ -247,34 +247,17 @@ class FloatingControlsService : LifecycleService() {
                     return
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "PowerManager.goToSleep failed, falling back to broadcast", e)
+                Log.w(TAG, "PowerManager.goToSleep failed: ${e.message}", e)
             }
         }
-        try {
-            sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
-            Log.d(TAG, "Screen lock via ACTION_SCREEN_OFF broadcast fallback")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to lock screen — all methods failed", e)
-        }
+        Log.w(TAG, "Screen lock: no viable method available on this device/OS")
     }
 
     private fun openPowerMenu() {
-        try {
-            val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && powerManager?.isInteractive == true) {
-                val devicePolicyManager = getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
-                val adminComponent = android.content.ComponentName(this, android.app.admin.DeviceAdminReceiver::class.java)
-                if (devicePolicyManager?.isAdminActive(adminComponent) == true) {
-                    val intent = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                    startActivity(intent)
-                    Log.d(TAG, "Opened power usage settings")
-                } else {
-                    Log.d(TAG, "Power menu not available without DeviceAdmin")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to open power menu", e)
-        }
+        // No reliable public API exists for third-party apps to trigger the system power menu.
+        // Android restricts this for security reasons. Device owners/admins have more options
+        // but for a regular app this is not feasible. Logging for diagnostics.
+        Log.w(TAG, "Power menu: no reliable API available for third-party apps")
     }
 
     private fun openApp() {
