@@ -26,13 +26,13 @@ class PlaybackMonitor(
     private var callback: AudioManager.AudioPlaybackCallback? = null
     private val uidPackageCache = mutableMapOf<Int, String>()
 
-    fun startMonitoring() {
+    fun startMonitoring(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             Log.w(TAG, "AudioPlaybackCallback requires API level 26+")
-            return
+            return false
         }
 
-        if (callback != null) return
+        if (callback != null) return true
 
         val monitorCallback = object : AudioManager.AudioPlaybackCallback() {
             override fun onPlaybackConfigChanged(configs: List<AudioPlaybackConfiguration>) {
@@ -50,6 +50,7 @@ class PlaybackMonitor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to register AudioPlaybackCallback", e)
         }
+        return true
     }
 
     fun stopMonitoring() {

@@ -44,6 +44,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation(viewModel: MainViewModel) {
     val navController = rememberNavController()
+    val serviceRunning by viewModel.serviceRunning.collectAsState()
+
+    LaunchedEffect(Unit) {
+        // Re-sync service state after composition is ready
+        viewModel.refreshServiceState()
+    }
 
     NavHost(
         navController = navController,

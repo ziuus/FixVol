@@ -42,6 +42,10 @@ fun MainScreen(
     val settings by viewModel.settings.collectAsState()
     val installedApps by viewModel.installedApps.collectAsState()
     val testResult by viewModel.testResult.collectAsState()
+    val serviceRunning by viewModel.serviceRunning.collectAsState()
+
+    // Show actual service state, not just the stored setting
+    val effectiveEnabled = if (serviceRunning) settings.enabled else false
 
     Scaffold(
         topBar = {
@@ -86,8 +90,9 @@ fun MainScreen(
                 // Status Card
                 item {
                     StatusCard(
-                        enabled = settings.enabled,
-                        onToggle = { viewModel.toggleMasterEnable(it) }
+                        settings = settings,
+                        serviceRunning = serviceRunning,
+                        onToggle = { enabled -> viewModel.toggleMasterEnable(enabled) }
                     )
                 }
 
@@ -152,9 +157,13 @@ fun MainScreen(
 
 @Composable
 fun StatusCard(
-    enabled: Boolean,
+    settings: com.fixvol.app.data.FixVolSettings,
+    serviceRunning: Boolean,
     onToggle: (Boolean) -> Unit
 ) {
+    // Effective state for display: shows the actual service state, not just stored setting
+    val effectiveEnabled = serviceRunning && settings.enabled
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -176,23 +185,31 @@ fun StatusCard(
                     modifier = Modifier
                         .size(14.dp)
                         .clip(CircleShape)
-                        .background(if (enabled) StatusActiveGreen else StatusPausedAmber)
+                        .background(
+                            if (effectiveEnabled) StatusActiveGreen
+                            else if (serviceRunning) StatusActiveGreen.copy(alpha = 0.4f)
+                            else StatusPausedAmber
+                        )
                 )
                 Column {
                     Text(
-                        text = if (enabled) "Active" else "Paused",
+                        text = if (effectiveEnabled) "Active" else "Paused",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = TextPrimary
                     )
                     Text(
-                        text = if (enabled) "Listening for audio playback" else "Monitoring is turned off",
+                        text = when {
+                            effectiveEnabled -> "Listening for audio playback"
+                            serviceRunning -> "Service running — enable to start monitoring"
+                            else -> "Service not running — tap on to start"
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextSecondary
                     )
                 }
             }
             Switch(
-                checked = enabled,
+                checked = settings.enabled,
                 onCheckedChange = onToggle,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = LightSurface,

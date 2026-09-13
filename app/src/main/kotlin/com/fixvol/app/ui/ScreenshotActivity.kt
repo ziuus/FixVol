@@ -2,9 +2,6 @@ package com.fixvol.app.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Bitmap.CompressFormat
-import android.graphics.ColorSpace
 import android.graphics.ImageFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
@@ -14,9 +11,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -25,6 +22,7 @@ import java.util.*
 
 class ScreenshotActivity : ComponentActivity() {
 
+    private val TAG = "ScreenshotActivity"
     private var projection: MediaProjection? = null
     private var isCapturing = false
 
@@ -78,7 +76,8 @@ class ScreenshotActivity : ComponentActivity() {
                 val height = metrics.heightPixels
                 val density = metrics.densityDpi
 
-                val reader = ImageReader.newInstance(width, height, ImageFormat.PRIVATE, 2)
+                // Use ImageInputStream for reliable capture on all supported API levels
+                val reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2)
                 val vd = projection!!.createVirtualDisplay(
                     "FixVol-Screenshot",
                     width, height, density,
@@ -86,31 +85,36 @@ class ScreenshotActivity : ComponentActivity() {
                     reader.surface, null, null
                 )
 
-                val image = reader.acquireLatestImage()
-                val bitmap = image.use { img ->
-                    val buffer = img.hardwareBuffer
-                    buffer?.let {
-                        Bitmap.wrapHardwareBuffer(it, ColorSpace.get(ColorSpace.Named.SRGB))
-                    }
-                }
-                reader.close()
-                vd.release()
+                // Give the virtual display a moment to render
+                kotlinx.coroutines.delay(300)
 
-                if (bitmap != null) {
+                val image = reader.acquireLatestImage()
+                if (image != null) {
+                    val buffer = image.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer.get(bytes)
+
                     val dir = File(getExternalFilesDir(null), "screenshots")
                     if (!dir.exists()) dir.mkdirs()
                     val ts = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-                    val file = File(dir, "fixvol_$ts.png")
+                    val file = File(dir, "fixvol_$ts.jpg")
                     FileOutputStream(file).use { out ->
-                        bitmap.compress(CompressFormat.PNG, 95, out)
+                        out.write(bytes)
                     }
-                    bitmap.recycle()
+
+                    Log.d(TAG, "Screenshot saved: ${file.absolutePath} ($width×$height)")
+                    image.close()
+                } else {
+                    Log.w(TAG, "No image acquired from ImageReader")
                 }
 
+                reader.close()
+                vd.release()
                 projection = null
                 isCapturing = false
                 finish()
             } catch (e: Exception) {
+                Log.e(TAG, "Screenshot capture failed", e)
                 projection = null
                 isCapturing = false
                 finish()

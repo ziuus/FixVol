@@ -33,8 +33,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _testResult = MutableStateFlow<String?>(null)
     val testResult: StateFlow<String?> = _testResult.asStateFlow()
 
+    private val _serviceRunning = MutableStateFlow(false)
+    val serviceRunning: StateFlow<Boolean> = _serviceRunning.asStateFlow()
+
     init {
         loadInstalledApps()
+        // Sync UI to actual service state on launch
+        refreshServiceState()
+    }
+
+    fun refreshServiceState() {
+        _serviceRunning.value = monitoringController.isServiceRunning()
     }
 
     private fun loadInstalledApps() {

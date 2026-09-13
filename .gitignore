@@ -1,15 +1,13 @@
-*.iml
-.gradle
-/local.properties
-/.idea
-.DS_Store
-/build
-/app/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-.kotlin
+# Build artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*/build/
+build/
+*/.transforms/
+*.klib
 *.jks
 *.jks.b64
-shared/build/
+.kotlin/
