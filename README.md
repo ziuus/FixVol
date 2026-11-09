@@ -4,6 +4,10 @@
 
 Play audio. FixVol detects it. Android's native volume panel appears.
 
+> Building this in the open — if it saves you time, a star helps others find it.
+> Found a bug, or have an idea? [Open an issue](https://github.com/ziuus/FixVol/issues).
+> Bug reports with your device and Android version help most.
+
 ---
 
 > **Fix the volume-button problem without replacing Android.**
